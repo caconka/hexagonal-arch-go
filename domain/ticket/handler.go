@@ -14,17 +14,17 @@ type TicketHandler interface {
 }
 
 type ticketHandler struct {
-	ticketService TicketService
+	s Service
 }
 
-func NewTicketHandler(ticketService TicketService) TicketHandler {
+func NewTicketHandler(s Service) TicketHandler {
 	return &ticketHandler{
-		ticketService,
+		s,
 	}
 }
 
 func (h *ticketHandler) Get(w http.ResponseWriter, r *http.Request) {
-	tickets, _ := h.ticketService.FindAllTickets()
+	tickets, _ := h.s.FindAllTickets()
 
 	response, _ := json.Marshal(tickets)
 
@@ -35,7 +35,7 @@ func (h *ticketHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 func (h *ticketHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	ticket, _ := h.ticketService.FindTicketById(id)
+	ticket, _ := h.s.FindTicketById(id)
 
 	response, _ := json.Marshal(ticket)
 
@@ -49,7 +49,7 @@ func (h *ticketHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var ticket Ticket
 	decoder := json.NewDecoder(r.Body)
 	_ = decoder.Decode(&ticket)
-	_ = h.ticketService.CreateTicket(&ticket)
+	_ = h.s.CreateTicket(&ticket)
 
 	response, _ := json.Marshal(ticket)
 	w.Header().Set("Content-Type", "application/json")

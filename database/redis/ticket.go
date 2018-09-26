@@ -13,7 +13,7 @@ type ticketRepository struct {
 	connection *redis.Client
 }
 
-func NewRedisTicketRepository(connection *redis.Client) ticket.TicketRepository {
+func NewRedisTicketRepository(connection *redis.Client) ticket.Repository {
 	return &ticketRepository{
 		connection,
 	}

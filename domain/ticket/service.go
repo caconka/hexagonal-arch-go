@@ -6,23 +6,23 @@ import (
 	"github.com/google/uuid"
 )
 
-type TicketService interface {
+type Service interface {
 	CreateTicket(ticket *Ticket) error
 	FindTicketById(id string) (*Ticket, error)
 	FindAllTickets() ([]*Ticket, error)
 }
 
-type ticketService struct {
-	repo TicketRepository
+type service struct {
+	repo Repository
 }
 
-func NewTicketService(repo TicketRepository) TicketService {
-	return &ticketService{
+func NewTicketService(repo Repository) Service {
+	return &service{
 		repo,
 	}
 }
 
-func (s *ticketService) CreateTicket(ticket *Ticket) error {
+func (s *service) CreateTicket(ticket *Ticket) error {
 	ticket.ID = uuid.New().String()
 	ticket.Created = time.Now()
 	ticket.Updated = time.Now()
@@ -30,10 +30,10 @@ func (s *ticketService) CreateTicket(ticket *Ticket) error {
 	return s.repo.Create(ticket)
 }
 
-func (s *ticketService) FindTicketById(id string) (*Ticket, error) {
+func (s *service) FindTicketById(id string) (*Ticket, error) {
 	return s.repo.FindById(id)
 }
 
-func (s *ticketService) FindAllTickets() ([]*Ticket, error) {
+func (s *service) FindAllTickets() ([]*Ticket, error) {
 	return s.repo.FindAll()
 }

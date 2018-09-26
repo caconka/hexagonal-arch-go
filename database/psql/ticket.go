@@ -12,7 +12,7 @@ type ticketRepository struct {
 	db *sql.DB
 }
 
-func NewPostgresTicketRepository(db *sql.DB) ticket.TicketRepository {
+func NewPostgresTicketRepository(db *sql.DB) ticket.Repository {
 	return &ticketRepository{
 		db,
 	}

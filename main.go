@@ -23,7 +23,7 @@ func main() {
 	dbType := flag.String("database", "redis", "database type [redis, psql]")
 	flag.Parse()
 
-	var ticketRepo ticket.TicketRepository
+	var ticketRepo ticket.Repository
 
 	switch *dbType {
 	case "psql":
