@@ -2,7 +2,7 @@ package redis
 
 import (
 	"encoding/json"
-	"hex-example/ticket"
+	"hex-arch/domain/ticket"
 
 	"github.com/go-redis/redis"
 )
