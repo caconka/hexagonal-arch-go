@@ -1,5 +1,8 @@
 # hex-arch
 
+Example of hexagonal architecture - DDD in go
+
+#### cURL redis mode
 ```
 curl -X POST http://localhost:3000/tickets -H 'Cache-Control: no-cache' \
 	-H 'Content-Type: application/json' -d '{

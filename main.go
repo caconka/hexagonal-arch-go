@@ -7,13 +7,13 @@ import (
 	"hex-arch/database/psql"
 	redisdb "hex-arch/database/redis"
 	"hex-arch/domain/ticket"
+	"hex-arch/server"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/go-chi/chi"
 	"github.com/go-redis/redis"
 	_ "github.com/lib/pq"
 )
@@ -35,19 +35,13 @@ func main() {
 	}
 
 	ticketService := ticket.NewTicketService(ticketRepo)
-	ticketHandler := ticket.NewTicketHandler(ticketService)
 
-	router := chi.NewRouter()
-	router.Get("/tickets", ticketHandler.Get)
-	router.Get("/tickets/{id}", ticketHandler.GetById)
-	router.Post("/tickets", ticketHandler.Create)
-
-	http.Handle("/", accessControl(router))
+	svr := server.New(ticketService)
 
 	errs := make(chan error, 2)
 	go func() {
 		fmt.Println("Listening on port :3000")
-		errs <- http.ListenAndServe(":3000", nil)
+		errs <- http.ListenAndServe(":3000", svr)
 	}()
 	go func() {
 		c := make(chan os.Signal, 1)
@@ -56,7 +50,6 @@ func main() {
 	}()
 
 	fmt.Printf("terminated %s", <-errs)
-
 }
 
 func redisConnection(url string) *redis.Client {
@@ -82,18 +75,4 @@ func postgresConnection(database string) *sql.DB {
 		panic(err)
 	}
 	return db
-}
-
-func accessControl(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
-
-		if r.Method == "OPTIONS" {
-			return
-		}
-
-		h.ServeHTTP(w, r)
-	})
 }

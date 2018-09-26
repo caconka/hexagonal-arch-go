@@ -1,29 +1,31 @@
-package ticket
+package server
 
 import (
 	"encoding/json"
+	"hex-arch/domain/ticket"
 	"net/http"
 
 	"github.com/go-chi/chi"
 )
 
-type TicketHandler interface {
-	Get(w http.ResponseWriter, r *http.Request)
-	GetById(w http.ResponseWriter, r *http.Request)
-	Create(w http.ResponseWriter, r *http.Request)
-}
-
 type ticketHandler struct {
-	s Service
+	s ticket.Service
 }
 
-func NewTicketHandler(s Service) TicketHandler {
-	return &ticketHandler{
-		s,
-	}
+func (h *ticketHandler) router() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/", h.get)
+	r.Post("/", h.create)
+
+	r.Route("/{id}", func(r chi.Router) {
+		r.Get("/", h.getById)
+	})
+
+	return r
 }
 
-func (h *ticketHandler) Get(w http.ResponseWriter, r *http.Request) {
+func (h *ticketHandler) get(w http.ResponseWriter, r *http.Request) {
 	tickets, _ := h.s.FindAllTickets()
 
 	response, _ := json.Marshal(tickets)
@@ -33,7 +35,7 @@ func (h *ticketHandler) Get(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
-func (h *ticketHandler) GetById(w http.ResponseWriter, r *http.Request) {
+func (h *ticketHandler) getById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	ticket, _ := h.s.FindTicketById(id)
 
@@ -44,9 +46,9 @@ func (h *ticketHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(response)
 }
 
-func (h *ticketHandler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *ticketHandler) create(w http.ResponseWriter, r *http.Request) {
 
-	var ticket Ticket
+	var ticket ticket.Ticket
 	decoder := json.NewDecoder(r.Body)
 	_ = decoder.Decode(&ticket)
 	_ = h.s.CreateTicket(&ticket)
@@ -55,5 +57,4 @@ func (h *ticketHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(response)
-
 }
