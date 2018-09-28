@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"hex-arch/database/mongo"
 	"hex-arch/database/psql"
 	redisdb "hex-arch/database/redis"
 	"hex-arch/domain/ticket"
@@ -14,22 +15,28 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/globalsign/mgo"
 	"github.com/go-redis/redis"
 	_ "github.com/lib/pq"
 )
 
 func main() {
 
-	dbType := flag.String("database", "redis", "database type [redis, psql]")
+	dbType := flag.String("database", "redis", "database type [redis, psql, mongo]")
 	flag.Parse()
 
 	var ticketRepo ticket.Repository
 
 	switch *dbType {
 	case "psql":
-		ticketRepo = psql.NewPostgresTicketRepository(postgresConnection("postgresql://postgres@localhost/ticket?sslmode=disable"))
+		c := postgresConnection("postgresql://postgres@localhost/ticket?sslmode=disable")
+		ticketRepo = psql.NewPostgresTicketRepository(c)
 	case "redis":
-		ticketRepo = redisdb.NewRedisTicketRepository(redisConnection("localhost:6379"))
+		c := redisConnection("localhost:6379")
+		ticketRepo = redisdb.NewRedisTicketRepository(c)
+	case "mongo":
+		c := mongoConnection("localhost:27017")
+		ticketRepo = mongo.NewMongoTicketRepository(c)
 	default:
 		panic("Unknown database")
 	}
@@ -56,23 +63,38 @@ func redisConnection(url string) *redis.Client {
 	fmt.Println("Connecting to Redis DB")
 	client := redis.NewClient(&redis.Options{
 		Addr:     url,
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       0,
 	})
 	err := client.Ping().Err()
 
 	if err != nil {
 		panic(err)
 	}
+
 	return client
 }
 
 func postgresConnection(database string) *sql.DB {
 	fmt.Println("Connecting to PostgreSQL DB")
 	db, err := sql.Open("postgres", database)
+
 	if err != nil {
 		log.Fatalf("%s", err)
 		panic(err)
 	}
+
 	return db
+}
+
+func mongoConnection(url string) *mgo.Session {
+	fmt.Println("Connecting to Mongo DB")
+	session, err := mgo.Dial(url)
+
+	if err != nil {
+		log.Fatalf("%s", err)
+		panic(err)
+	}
+
+	return session
 }

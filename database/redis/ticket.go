@@ -26,7 +26,7 @@ func (r *ticketRepository) Create(ticket *ticket.Ticket) error {
 		return err
 	}
 
-	r.connection.HSet(table, ticket.ID, encoded) //Don't expire
+	r.connection.HSet(table, ticket.ID, encoded)
 	return nil
 }
 
