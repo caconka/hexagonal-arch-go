@@ -2,7 +2,7 @@ package psql
 
 import (
 	"database/sql"
-	"hex-arch/domain/ticket"
+	"hexagonal-arch-go/domain/ticket"
 	"log"
 
 	_ "github.com/lib/pq"

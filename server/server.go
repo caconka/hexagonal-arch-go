@@ -1,7 +1,7 @@
 package server
 
 import (
-	"hex-arch/domain/ticket"
+	"hexagonal-arch-go/domain/ticket"
 	"net/http"
 
 	"github.com/go-chi/chi"

@@ -1,4 +1,4 @@
-# hex-arch
+# hexagonal-arch-go
 
 Example of hexagonal architecture - DDD in go
 

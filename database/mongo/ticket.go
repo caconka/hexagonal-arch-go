@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"hex-arch/domain/ticket"
+	"hexagonal-arch-go/domain/ticket"
 
 	"github.com/globalsign/mgo"
 )

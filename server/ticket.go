@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	"hex-arch/domain/ticket"
+	"hexagonal-arch-go/domain/ticket"
 	"net/http"
 
 	"github.com/go-chi/chi"
